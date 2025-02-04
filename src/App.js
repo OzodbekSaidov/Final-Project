@@ -1,10 +1,10 @@
 import styled, { ThemeProvider } from "styled-components";
 import RoutesContainer from "./components/routes";
-import "leaflet/dist/leaflet.css";
 import { LightMode, DarkMode } from "./constants/theme";
 import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "leaflet/dist/leaflet.css"
 
 const Container = styled("div")`
   background-color: ${({ theme }) => theme.secondary};

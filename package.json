@@ -6,11 +6,13 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "calendar-link": "^2.6.0",
     "i18next": "^23.11.5",
     "i18next-browser-languagedetector": "^8.0.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.474.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
     "react-calendar": "^5.0.0",
@@ -23,6 +25,7 @@
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.11",
     "toast": "^0.5.4",
     "tostify": "^0.0.1",
@@ -54,6 +57,7 @@
     ]
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.12"
+    "@types/leaflet": "^1.9.16",
+    "@yandex/ymaps3-types": "^1.0.15731128"
   }
 }

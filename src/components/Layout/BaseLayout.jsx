@@ -1,6 +1,7 @@
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import styled from "styled-components";
+import MapComponent from "../../containers/HomePage/containers/MapComponent";
 
 const Container = styled("div")`
   height: 100vh;
@@ -9,17 +10,14 @@ const Container = styled("div")`
 
 const ChildrenComponent = styled("div")`
   width: 100%;
-  height: 100%;
-  top: 8vh;
+  height: 80%;
   background-color: ${({ theme }) => theme.primary};
 `;
 
 const BaseLayout = ({ children, theme, toggleTheme }) => {
   return (
     <Container>
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <ChildrenComponent>{children}</ChildrenComponent>
-      <Footer theme={theme} />
     </Container>
   );
 };
