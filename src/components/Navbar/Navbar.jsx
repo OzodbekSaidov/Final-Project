@@ -2,8 +2,10 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoIosSearch } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
-import { useState } from "react";
-import { SETTINGS_PAGE } from "../../constants/routes";
+import { useEffect, useState } from "react";
+import { LOGIN_PAGE, SETTINGS_PAGE } from "../../constants/routes";
+import cookie from "js-cookie";
+
 
 const NavContainer = styled.div`
   position: absolute; /* Размещаем элементы поверх карты */
@@ -91,6 +93,12 @@ const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
     setSearchValue(e.target.value);
   };
 
+const storedUser = useEffect(() =>{
+  const storedUser = cookie.get("user");
+  return storedUser;
+})
+
+
   return (
     <NavContainer>
       <SearchBar style={{ marginLeft: isOpen ? "250px" : "4rem" }}>
@@ -102,8 +110,10 @@ const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
         {isMenuOpen && (
           <DropdownMenu>
             <ul>
-              <li onClick={() => navigate("/account")}>Профиль</li>
-              <li onClick={() => navigate(SETTINGS_PAGE)}>Настройки</li>
+              {storedUser ? (<li onClick={() => navigate("/account")}>Профиль</li>) : (
+                <li onClick={() => navigate(LOGIN_PAGE)}>Login</li>
+              )}
+              
             </ul>
           </DropdownMenu>
         )}
