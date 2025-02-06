@@ -64,6 +64,9 @@ const MenuList = styled.ul`
     }
   }
 `;
+const BottomLi = styled.li`
+  margin-top: 25rem;
+`
 
 const Sidebar = ({isOpen, setIsOpen}) => {
   const navigate = useNavigate();
@@ -85,15 +88,24 @@ const Sidebar = ({isOpen, setIsOpen}) => {
 
           <li>
             <RiBookmarkLine />
-            <span>Saved</span>
+            <span>Сохранено
+            </span>
           </li>
           <li>
             <MdOutlineFavoriteBorder />
-            <span>Favorite</span>
+            <span>Уведомления
+            </span>
           </li>
+
+
+
+          <BottomLi>
+            <RiSettings2Line />
+            <span >О нас</span>
+          </BottomLi>
           <li>
             <RiSettings2Line />
-            <span > Map Settings</span>
+            <span >Поддержка</span>
           </li>
         </MenuList>
       </SidebarContainer>
