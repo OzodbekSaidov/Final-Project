@@ -1,85 +1,134 @@
 import {
   MapContainer,
   TileLayer,
-  useMap,
-  Popup,
   Marker,
+  Popup,
   ZoomControl,
-  useMapEvents,
-  
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { IoMdLocate } from "react-icons/io";
+import L from "leaflet";
 import { useState, useEffect } from "react";
 import { getStations } from "../../../axios/axios";
 
-// const LocateUser = () => {
-//   const map = useMap();
+// Кастомный маркер
+const MarkerIcon = L.divIcon({
+  html: `<div style="
+    width: 30px; 
+    height: 30px; 
+    background: red; 
+    border-radius: 50%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    color: white;
+    font-size: 18px;">
+    🚀
+  </div>`,
+  className: "custom-marker",
+  iconSize: [30, 30],
+});
 
+// Компонент кнопки
+const LocateButton = ({ setUserPosition }) => {
+  const map = useMap();
 
-//   useEffect(() => {
-//     if ("geolocation" in navigator) {
-//       navigator.geolocation.getCurrentPosition(
-//         (position) => {
-//           const { latitude, longitude } = position.coords;
-//           map.setView([latitude, longitude], 13);
-//         },
-//         () => {
-//           console.error("Не удалось получить местоположение");
-//         }
-//       );
-//     }
-//   }, [map]);
+  const handleClick = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserPosition(coords);
+        localStorage.setItem("userPosition", JSON.stringify(coords));
 
-//   return null;
-// };
+        // Перемещаем карту после получения координат
+        map.flyTo(coords, 15);
+      },
+      (err) => console.error("Ошибка определения местоположения:", err)
+    );
+  };
 
-function LocationMarker() {
-  const [position, setPosition] = useState(null)
-  const map = useMapEvents({
-    click() {
-      map.locate()
-    },
-    locationfound(e) {
-      setPosition(e.latlng)
-      map.flyTo(e.latlng, map.getZoom())
-    },
-  })
-
-  return position === null ? null : (
-    <Marker position={position}>
-      <Popup>You are here</Popup>
-    </Marker>
-  )
-}
+  return (
+    <button
+      onClick={handleClick}
+      style={{
+        position: "absolute",
+        bottom: "100px",
+        right: "4px",
+        padding: "8px 10px",
+        background: "none",
+        color: "white",
+        fontSize: "16px",
+        fontWeight: "bold",
+        border: "grey 1px solid",
+        borderRadius: "10px",
+        cursor: "pointer",
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+        transition: "all 0.3s",
+        zIndex: 1000,
+      }}
+      onMouseEnter={(e) => (e.target.style.background = "#0056b3")}
+      onMouseLeave={(e) => (e.target.style.background = "none")}
+    >
+      <IoMdLocate color="black" size={19}/> 
+    </button>
+  );
+};
 
 const MapComponent = () => {
   const [stations, setStations] = useState([]);
+  const [filteredStations, setFilteredStations] = useState([]);
+  const [search, setSearch] = useState("");
+  const [fuelType, setFuelType] = useState("");
+  const [userPosition, setUserPosition] = useState(
+    JSON.parse(localStorage.getItem("userPosition")) || null
+  );
 
   useEffect(() => {
     getStations().then(setStations).catch(console.error);
-  });
+  }, []);
+
+  useEffect(() => {
+    const filtered = stations.filter((station) => {
+      const matchesName = station.name.toLowerCase().includes(search.toLowerCase());
+      const matchesFuel = fuelType ? station.fuelType === fuelType : true;
+      return matchesName && matchesFuel;
+    });
+
+    setFilteredStations(filtered);
+  }, [search, fuelType, stations]);
+
   return (
     <MapContainer
-      center={[51.505, -0.09]}
-      zoom={20}
+      center={[41, 69]}
+      zoom={17}
       style={{ height: "100%", width: "100%" }}
       scrollWheelZoom={false}
       zoomControl={false}
     >
       <TileLayer url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" />
 
-      {stations.map((station) => (
-        <Marker key={station.id} position={[station.location.lat, station.location.lng]}>
+      {filteredStations.map((station) => (
+        <Marker
+          key={station.id}
+          position={[station.location.lat, station.location.lng]}
+          icon={MarkerIcon}
+        >
           <Popup>
-            <b>{station.name}</b> <br/>
+            <b>{station.name}</b> <br />
             Топливо: {station.services}
           </Popup>
         </Marker>
       ))}
 
+      {userPosition && (
+        <Marker position={[userPosition.lat, userPosition.lng]}>
+          <Popup>Вы здесь!</Popup>
+        </Marker>
+      )}
+
       <ZoomControl position="bottomright" />
-      <LocationMarker />
+      <LocateButton setUserPosition={setUserPosition} />
     </MapContainer>
   );
 };
