@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HOME_PAGE, LOGIN_PAGE } from "../../../constants/routes";
 import { toast } from "react-toastify";
-import { cookieData } from "../../../utils/cookies";
 import styled from "styled-components";
+import cookie from "js-cookie"
 
 const Card = styled.div`
   background: white;
@@ -70,51 +70,49 @@ const Input = styled.input`
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState();
 
   useEffect(() => {
-    const storedEmail = cookieData("email").getValue();
-    const storedUsername = cookieData("username").getValue();
-    if (storedEmail && storedUsername) {
-      setEmail(storedEmail);
-      setUsername(storedUsername);
-    } else {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+    if (!storedUser) {
       navigate(LOGIN_PAGE);
-      toast.error("Пожалуйста, войдите, чтобы получить доступ к профилю");
+      toast.error("Вы не авторизованы. Пожалуйста, авторизуйтесь.");
     }
-  }, [navigate]);
+  }, []);
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
-  const handleLogout = () => {
-    cookieData("email").setValue("");
-    cookieData("username").setValue("");
-    navigate(HOME_PAGE);
-  };
 
+
+
+
+  
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
       <Card>
         <div className="flex flex-col items-center">
           <Avatar>
-            {username.charAt(0).toUpperCase()}
+          {user?.name}
           </Avatar>
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <FaAddressCard className="text-gray-500" /> {username}
+            <FaAddressCard className="text-gray-500" /> {}
           </h2>
-          <p className="text-gray-500 text-sm">@{username.toLowerCase()}</p>
+          <p className="text-gray-500 text-sm">{user?.name}</p>
         </div>
         
         <CardContent>
           <div>
             <label className="text-sm font-medium text-gray-700">Email</label>
-            <Input type="email" value={email} disabled />
+            <Input type="email"  disabled />
           </div>
           
           <Button>
             <FiEdit2 size={16} /> Обновить профиль
           </Button>
           
-          <DestructiveButton onClick={handleLogout}>
+          <DestructiveButton >
             <FiLogOut size={16} /> Выйти
           </DestructiveButton>
         </CardContent>

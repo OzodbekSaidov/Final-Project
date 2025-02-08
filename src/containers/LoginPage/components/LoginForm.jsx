@@ -101,8 +101,11 @@ const Register = () => {
         password,
       });
       console.log("User registered", response.data);
-      cookie.set("user", JSON.stringify(response.data), { expires: 7 });
+      localStorage.setItem("user", JSON.stringify(response.data?.user));
+      localStorage.setItem("token", JSON.stringify(response.data?.token));
       navigate(HOME_PAGE);
+      console.log(response.data);
+      
     } catch (err) {
       setError(err.response ? err.response.data.message : "Ошибка logina");
     }

@@ -51,7 +51,6 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
-  margin-top: 5rem;
   width: 100%;
   padding: 10px;
   background: #007bff;
@@ -71,6 +70,20 @@ const ErrorText = styled.p`
   font-size: 14px;
   text-align: center;
 `;
+const Divvv = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-around;
+
+
+ `
+ const P = styled.p`
+    text-decoration: underline;
+    cursor: pointer;
+    &:hover {
+      color:#0056b3 ;
+    }
+ `
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -88,7 +101,8 @@ const Register = () => {
         password,
       });
       console.log("User registered", response.data);
-      cookie.set("user", JSON.stringify(response.data), { expires: 7 });
+      localStorage.setItem("user", JSON.stringify(response.data?.newUser));
+      localStorage.setItem("token", JSON.stringify(response.data?.token));
       navigate(HOME_PAGE);
     } catch (err) {
       setError(err.response ? err.response.data.message : "Ошибка регистрации");
@@ -121,6 +135,10 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+                  <Divvv>
+          <p>Есть аккаунт?</p>
+          <P onClick={() => navigate("/")}>Войти</P>
+        </Divvv>
           {error && <ErrorText>{error}</ErrorText>}
           <Button type="submit">Зарегистрироваться</Button>
         </form>

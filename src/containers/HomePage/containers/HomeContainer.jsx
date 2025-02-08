@@ -23,25 +23,19 @@ const HomeContainer = ({ theme }) => {
 
 
   const handleFuelSelect = (fuelType) => {
-    // Only set the fuel type if the input is empty
     if (fuelSearchValue === "") {
       setSelectedFuel(fuelType);
-      setFuelSearchValue(fuelType); // Set the input to the selected fuel type
+      setFuelSearchValue(fuelType); 
     } else {
-      setSelectedFuel(fuelType); // Update selected fuel without affecting the input if not empty
+      setSelectedFuel(fuelType); 
     }
   };
 
   const handleSearchInputChange = (e) => {
-    setFuelSearchValue(e.target.value); // Allow the user to modify the input
+    setFuelSearchValue(e.target.value); 
   };
 
-  // const navigate = useNavigate();
 
-  // if (cookieData("username").getValue() === "") {
-  //   navigate(LOGIN_PAGE);
-  //   toast.error("Please login to access the home page");
-  // }
   return (
     <Container>
       <Navbar
@@ -51,10 +45,6 @@ const HomeContainer = ({ theme }) => {
       />
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
       <MapComponent />
-      <Footer
-        selectedFuel={selectedFuel}
-        onFuelSelect={handleFuelSelect}
-      />
     </Container>
   );
 };

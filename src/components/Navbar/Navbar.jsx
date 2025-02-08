@@ -13,32 +13,32 @@ const NavContainer = styled.div`
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
   width: 90%;
   z-index: 1000;
 `;
 
-const SearchBar = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
-  border-radius: 2rem;
-  padding: 0 1rem;
-  width: 40%; /* Ширина строки поиска */
-  height: 3rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  margin-left: 4rem;
+// const SearchBar = styled.div`
+//   display: flex;
+//   align-items: center;
+//   background-color: #ffffff;
+//   border-radius: 2rem;
+//   padding: 0 1rem;
+//   width: 40%; /* Ширина строки поиска */
+//   height: 3rem;
+//   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+//   margin-left: 4rem;
 
-  input {
-    border: none;
-    outline: none;
-    background: none;
-    flex: 1;
-    margin-left: 0.5rem;
-    font-size: 1rem;
-  }
-`;
+//   input {
+//     border: none;
+//     outline: none;
+//     background: none;
+//     flex: 1;
+//     margin-left: 0.5rem;
+//     font-size: 1rem;
+//   }
+// `;
 
 const Avatar = styled.div`
   width: 3rem;
@@ -85,6 +85,7 @@ const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState(  );
+  const [storedUser , setStoredUser] = useState(null)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -93,27 +94,26 @@ const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
     setSearchValue(e.target.value);
   };
 
-const storedUser = useEffect(() =>{
-  const storedUser = cookie.get("user");
-  return storedUser;
-})
+  useEffect(() =>{
+    const user = cookie.get("user");
+    setStoredUser(user);
+  }, [])
+
+
 
 
   return (
     <NavContainer>
-      <SearchBar style={{ marginLeft: isOpen ? "250px" : "4rem" }}>
-        <IoIosSearch size={20} />
-        <input type="text" placeholder="Search stations" value={fuelSearchValue} onChange={onSearchInputChange} />
-      </SearchBar>
       <Avatar onClick={toggleMenu}>
         <RxAvatar size={24} />
         {isMenuOpen && (
           <DropdownMenu>
             <ul>
-              {storedUser ? (<li onClick={() => navigate("/account")}>Профиль</li>) : (
+              {storedUser ? (
+                <li onClick={() => navigate("/account")}>Профиль</li>
+              ) : (
                 <li onClick={() => navigate(LOGIN_PAGE)}>Login</li>
               )}
-              
             </ul>
           </DropdownMenu>
         )}
