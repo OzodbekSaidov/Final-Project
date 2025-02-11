@@ -3,6 +3,7 @@ import { api } from "../../../axios/axios.js";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { HOME_PAGE } from "../../../constants/routes.js";
+import MapPicker from "./MapPicker"; // Import the MapPicker component
 
 const Card = styled.div`
   max-width: 500px;
@@ -92,6 +93,14 @@ const StationAdd = () => {
     }));
   };
 
+  const handleLocationSelect = ({ lat, lng }) => {
+    setStation((prev) => ({
+      ...prev,
+      lat: lat.toString(),
+      lng: lng.toString(),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const requestData = {
@@ -118,8 +127,9 @@ const StationAdd = () => {
       <form onSubmit={handleSubmit}>
         <Input name="name" placeholder="Название" onChange={handleChange} required />
         <Input name="city" placeholder="Город" onChange={handleChange} required />
-        <Input name="lat" placeholder="Широта" onChange={handleChange} required />
-        <Input name="lng" placeholder="Долгота" onChange={handleChange} required />
+
+        <h3>Выберите местоположение на карте:</h3>
+        <MapPicker onLocationSelect={handleLocationSelect} />
 
         <h3>Бензин:</h3>
         {fuelTypes.map((type) => (
