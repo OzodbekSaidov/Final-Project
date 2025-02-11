@@ -9,3 +9,5 @@ export const SETTINGS_PAGE = "/settings"
 export const STATION_PAGE = "/station"
 
 export const REGISTER_PAGE = "/register"
+
+export const ABOUT_PAGE = "/about"

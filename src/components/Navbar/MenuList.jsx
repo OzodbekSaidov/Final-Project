@@ -7,10 +7,12 @@ import {
   RiSettings2Line,
   RiBookmarkLine,
 } from "react-icons/ri";
+import { IoIosAddCircleOutline } from "react-icons/io";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { BiSupport } from "react-icons/bi";
 import { MdOutlineFavoriteBorder } from "react-icons/md";
-import { SETTINGS_PAGE } from "../../constants/routes";
+import { SETTINGS_PAGE, STATION_PAGE } from "../../constants/routes";
+import { getUserRole } from "../../utils/auth";
 
 const SidebarContainer = styled.div`
   position: fixed;
@@ -38,7 +40,6 @@ const MenuList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-
   li {
     display: flex;
     align-items: center;
@@ -67,6 +68,7 @@ const BottomLi = styled.li`
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
+  const userRole = getUserRole();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -89,6 +91,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <span>Уведомления</span>
           </li>
 
+          {userRole === "admin" && (
+            <li>
+              <IoIosAddCircleOutline />
+              <span onClick={() => navigate(STATION_PAGE)}>
+                Добавить станцию
+              </span>
+            </li>
+          )}
           <BottomLi>
             <IoInformationCircleOutline />
             <span>О нас</span>

@@ -126,11 +126,12 @@ console.log(fuelSearchValue);
 
   //   setFilteredStations(filtered);
   // }, [search, fuelType, stations]);
-console.log(userPosition);
+console.log(stations[3]?.status);
+
   return (
     <>
     <MapContainer
-      center={[41, 69]}
+      center={[41.2139482774554,  69.2136831665452]}
       zoom={17}
       style={{ height: "100%", width: "100%" }}
       scrollWheelZoom={false}
@@ -140,13 +141,14 @@ console.log(userPosition);
 
       {stations.map((station) => (
         <Marker
-          key={station.id}
+          key={station._id}
           position={[station.location.lat, station.location.lng]}
           icon={MarkerIcon}
         >
           <Popup>
             <b>{station.name}</b> <br />
-            Топливо: {station.services}
+            Топливо: {station.services.join(", ")}<br />
+            Status: {station.status ? <h>Работает</h> : <h>Закрыто</h>}
           </Popup>
         </Marker>
       ))}
