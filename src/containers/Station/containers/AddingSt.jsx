@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {api} from "../../../axios/axios.js";
+import { api } from "../../../axios/axios.js";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { HOME_PAGE } from "../../../constants/routes.js";
@@ -29,6 +29,13 @@ const Label = styled.label`
   margin: 5px 0;
 `;
 
+const Select = styled.select`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+`;
+
 const Button = styled.button`
   width: 100%;
   padding: 10px;
@@ -42,9 +49,8 @@ const Button = styled.button`
   }
 `;
 
-const fuelTypes = [
-  "AI-80", "AI-91", "AI-92", "AI-95", "AI-98", "AI-100", "diesel", "propane", "methane", "electric"
-];
+const fuelTypes = ["AI-80", "AI-91", "AI-92", "AI-95", "AI-98", "AI-100"];
+const otherFuels = ["diesel", "propane", "methane", "electric"];
 
 const StationAdd = () => {
   const [station, setStation] = useState({
@@ -53,28 +59,35 @@ const StationAdd = () => {
     lat: "",
     lng: "",
     services: [],
-    prices: {},
+    prices: { gasoline: {} },
     status: true,
   });
-  const navigate = useNavigate()
+  const [selectedFuel, setSelectedFuel] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setStation((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (type) => {
-    setStation((prev) => {
-      const newServices = prev.services.includes(type)
-        ? prev.services.filter((s) => s !== type)
-        : [...prev.services, type];
-      return { ...prev, services: newServices };
-    });
-  };
-
-  const handlePriceChange = (type, value) => {
+  const handleGasolineChange = (type, value) => {
     setStation((prev) => ({
       ...prev,
+      services: prev.services.includes("fuel") ? prev.services : ["fuel", ...prev.services],
+      prices: {
+        ...prev.prices,
+        gasoline: {
+          ...prev.prices.gasoline,
+          [type]: value ? parseInt(value, 10) : 0,
+        },
+      },
+    }));
+  };
+
+  const handleOtherFuelChange = (type, value) => {
+    setStation((prev) => ({
+      ...prev,
+      services: prev.services.includes(type) ? prev.services : [...prev.services, type],
       prices: { ...prev.prices, [type]: value ? parseInt(value, 10) : 0 },
     }));
   };
@@ -92,7 +105,7 @@ const StationAdd = () => {
         headers: { Authorization: `Bearer ${JSON.parse(token) || "null"}` },
       });
       alert("Станция добавлена!");
-      navigate(HOME_PAGE)
+      navigate(HOME_PAGE);
     } catch (error) {
       console.error("Ошибка при добавлении станции:", error);
       alert("Ошибка при добавлении!");
@@ -107,24 +120,38 @@ const StationAdd = () => {
         <Input name="city" placeholder="Город" onChange={handleChange} required />
         <Input name="lat" placeholder="Широта" onChange={handleChange} required />
         <Input name="lng" placeholder="Долгота" onChange={handleChange} required />
-        <h3>Выберите топливо:</h3>
+
+        <h3>Бензин:</h3>
         {fuelTypes.map((type) => (
+          <Label key={type}>
+            {type}
+            <Input
+              type="number"
+              placeholder="Цена"
+              onChange={(e) => handleGasolineChange(type, e.target.value)}
+            />
+          </Label>
+        ))}
+
+        <h3>Другие виды топлива:</h3>
+        {otherFuels.map((type) => (
           <Label key={type}>
             <input
               type="checkbox"
               checked={station.services.includes(type)}
-              onChange={() => handleCheckboxChange(type)}
+              onChange={() => handleOtherFuelChange(type, station.prices[type] || 0)}
             />
             {type}
             {station.services.includes(type) && (
               <Input
                 type="number"
                 placeholder="Цена"
-                onChange={(e) => handlePriceChange(type, e.target.value)}
+                onChange={(e) => handleOtherFuelChange(type, e.target.value)}
               />
             )}
           </Label>
         ))}
+
         <Label>
           <span>Станция активна</span>
           <input
@@ -140,6 +167,3 @@ const StationAdd = () => {
 };
 
 export default StationAdd;
-
-
-// 41.21074287270793, 69.21139961585031
