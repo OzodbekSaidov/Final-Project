@@ -1,6 +1,8 @@
 import { useState } from "react";
 import {api} from "../../../axios/axios.js";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import { HOME_PAGE } from "../../../constants/routes.js";
 
 const Card = styled.div`
   max-width: 500px;
@@ -54,6 +56,7 @@ const StationAdd = () => {
     prices: {},
     status: true,
   });
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,9 +89,10 @@ const StationAdd = () => {
     try {
       const token = localStorage.getItem("token");
       await api.post("/stations", requestData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${JSON.parse(token) || "null"}` },
       });
       alert("Станция добавлена!");
+      navigate(HOME_PAGE)
     } catch (error) {
       console.error("Ошибка при добавлении станции:", error);
       alert("Ошибка при добавлении!");
