@@ -12,6 +12,7 @@ import L from "leaflet";
 import { useState, useEffect } from "react";
 import { getStations } from "../../../axios/axios";
 import styled from "styled-components";
+import "leaflet-routing-machine"
 
 const FuelButtonContainer = styled.div`
   position: fixed;
@@ -56,6 +57,32 @@ const MarkerIcon = L.divIcon({
  
 
 });
+
+const RoutingMachine = ({ userPosition, destination }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!userPosition || !destination) return;
+
+    const routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(userPosition.lat, userPosition.lng),
+        L.latLng(destination.lat, destination.lng)
+      ],
+      lineOptions: {
+        styles: [{ color: "green", opacity: 0.8, weight: 5 }]
+      },
+      show: false,
+      createMarker: () => null,
+      addWaypoints: false,
+    }).addTo(map);
+
+    return () => map.removeControl(routingControl);
+  }, [map, userPosition, destination]);
+
+
+  return null;
+};
 
 // Компонент кнопки
 const LocateButton = ({ setUserPosition }) => {
@@ -104,15 +131,12 @@ const LocateButton = ({ setUserPosition }) => {
 
 const MapComponent = () => {
   const [stations, setStations] = useState([]);
-  const [filteredStations, setFilteredStations] = useState([]);
-  const [search, setSearch] = useState("");
-  const [fuelType, setFuelType] = useState("");
   const [userPosition, setUserPosition] = useState(
     JSON.parse(localStorage.getItem("userPosition")) || null
   );
   const [fuelSearchValue, setFuelSearchValue] = useState(null);
 console.log(fuelSearchValue);
-
+const [destination, setDestination] = useState(null);
   useEffect(() => {
     getStations(`${fuelSearchValue? `?s=${fuelSearchValue?.toLowerCase()}` : ``}`).then(setStations).catch(console.error);
   }, [fuelSearchValue]);
@@ -144,11 +168,17 @@ console.log(stations[3]?.status);
           key={station._id}
           position={[station.location.lat, station.location.lng]}
           icon={MarkerIcon}
+          eventHandlers={{
+            click: () => setDestination(station.location)
+          }}
         >
           <Popup>
             <b>{station.name}</b> <br />
             Топливо: {station.services.join(", ")}<br />
             Status: {station.status ? <h>Работает</h> : <h>Закрыто</h>}
+            <button onClick={() => setDestination(station.location)}>
+              В путь
+            </button>
           </Popup>
         </Marker>
       ))}
@@ -161,6 +191,8 @@ console.log(stations[3]?.status);
 
       <ZoomControl position="bottomright" />
       <LocateButton setUserPosition={setUserPosition} />
+      <RoutingMachine userPosition={userPosition} destination={destination} />
+
     </MapContainer>
     <FuelButtonContainer>
       <FuelButton
