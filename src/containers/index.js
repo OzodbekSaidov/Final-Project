@@ -4,6 +4,7 @@ import AccountPage from "./AccountPage/AccountPage";
 import SettingPage from "./SettingsPage/Settings";
 import StationPage from "./Station/Station"
 import RegisterPage from "./Register/Register";
+import AboutPage from "./AboutPage/AboutPage";
 
 
 const tester = () => [
@@ -12,7 +13,8 @@ const tester = () => [
   ...AccountPage(),
   ...SettingPage(),
   ...StationPage(),
-  ...RegisterPage()
+  ...RegisterPage(),
+  ...AboutPage()
 ];
 
 const Routes = () => [...tester()];

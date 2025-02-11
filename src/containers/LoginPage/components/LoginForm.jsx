@@ -1,208 +1,146 @@
+import React, { useState } from "react";
 import styled from "styled-components";
-import { useState } from "react";
+import { api } from "../../../axios/axios.js";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { cookieData } from "../../../utils/cookies";
-import * as ROUTES from "../../../constants/routes";
-import { parol } from "./emails";
+import { HOME_PAGE } from "../../../constants/routes.js";
+import cookie from "js-cookie";
+import { FiMapPin } from "react-icons/fi";
 
-// Styled Components
-const LoginFormContainer = styled.div`
+const RegisterContainer = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 5px;
-  padding: 30px;
-  width: 25vw;
-  height: 35vh;
-  color: ${({ theme }) => theme.color};
-  border-radius: 3rem;
-  background-color: ${({ theme }) => theme.primary};
-  box-shadow: 60px -16px rgba(149, 185, 228, 0.8);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background-color: #f5f5f5;
+  position: relative;
 `;
-const Login = styled.div``;
-const LoginFormTitle = styled.h2`
-  margin-bottom: 20px;
-  margin-left: 2.6rem;
+
+const BackgroundIcon = styled(FiMapPin)`
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+  font-size: 150px;
+  color: rgba(230, 57, 70, 0.2);
 `;
-const LoginFormInput = styled.input`
+
+const FormWrapper = styled.div`
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 100px 4px 25px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  height: 45%;
+`;
+
+const Title = styled.h2`
+  text-align: center;
+  color: #333;
+  margin-bottom: 0.5rem;
+`;
+
+const Input = styled.input`
+  margin-top: 1rem;
+  width: 100%;
   padding: 10px;
-  border-radius: 2rem;
-  margin-left: 10%;
-  margin-bottom: 20px;
-  width: 70%;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+`;
+
+const Button = styled.button`
+  margin-top: 2rem;
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: white;
   font-size: 16px;
-  color: ${({ theme }) => theme.color};
-  background-color: ${({ theme }) => theme.primary};
-  box-shadow: 14px -9px teal;
-`;
-const LoginFormButton = styled.button`
-  cursor: pointer;
-  margin-left: 10%;
-  width: 6rem;
-  height: 2.5rem;
   border: none;
-  border-radius: 2rem;
-  color: white;
-  background-color: rgb(76, 175, 80);
-  box-shadow: 14px -9px teal;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
   &:hover {
-    transition: 0.3s;
-    background-color: rgb(62, 142, 65);
-  }
-`;
-const PhoneNum = styled.h4`
-  cursor: pointer;
-  &&:hover {
-    text-decoration: underline;
-  }
-`;
-const RegisterType = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-const Number = styled("h1")`
-  position: relative;
-  bottom: 46%;
-`;
-const PhoneInput = styled.input`
-  position: relative;
-  top: 10%;
-  left: 10%;
-  padding: 10px;
-  border-radius: 2rem;
-  margin-left: 10%;
-  margin-bottom: 20px;
-  width: 65%;
-  font-size: 20px;
-  color: ${({ theme }) => theme.color};
-  background-color: ${({ theme }) => theme.primary};
-  box-shadow: 14px -9px teal;
-`;
-const LoginPhone = styled.div``;
-const LoginPhoneButton = styled.button`
-  position: relative;
-  top: 3rem;
-  left: 2.5rem;
-  cursor: pointer;
-  width: 6rem;
-  height: 2.5rem;
-  border: none;
-  border-radius: 2rem;
-  color: white;
-  background-color: rgb(76, 175, 80);
-  box-shadow: 14px -9px teal;
-  &:hover {
-    transition: 0.3s;
-    background-color: rgb(62, 142, 65);
-  }
-`;
-const Email = styled.h4`
-  position: relative;
-  left: 12rem;
-  cursor: pointer;
-  &&:hover {
-    text-decoration: underline;
+    background: #0056b3;
   }
 `;
 
-// Main Component
-const LoginForm = () => {
-  const [formState, setFormState] = useState(0);
-  const [email, setEmail] = useState("");
+const ErrorText = styled.p`
+  color: red;
+  font-size: 14px;
+  text-align: center;
+`;
+
+const Divvv = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-around;
+
+
+ `
+ const P = styled.p`
+    text-decoration: underline;
+    cursor: pointer;
+    &:hover {
+      color:#0056b3 ;
+    }
+ `
+
+const Register = () => {
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [PhoneNumber, setPhoneNumber] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const FormChange = () => {
-    setFormState((prevState) => (prevState === 0 ? 1 : 0));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = parol.find(
-      (user) => (user.login === email && user.pwd === password) || user.PhoneNumber === PhoneNumber
-    );
-
-    if (user) {
-      cookieData("token").setValue("some-auth-token");
-      cookieData("email").setValue(user.login)
-      cookieData("username").setValue(user.username);
-      cookieData("password").setValue(user.pwd);
-      cookieData("PhoneNumber").setValue(user.PhoneNumber);
-      navigate(ROUTES.HOME_PAGE);
-      window.location.reload();
-      toast.success("Successfully logged in");
-    } else {
-      toast.error("Please enter a valid email and password");
+    try {
+      const response = await api.post("/auth/login", {
+        phone,
+        password,
+      });
+      console.log("User registered", response.data);
+      localStorage.setItem("user", JSON.stringify(response.data?.user));
+      localStorage.setItem("token", JSON.stringify(response.data?.token));
+      navigate(HOME_PAGE);
+      console.log(response.data);
+      
+    } catch (err) {
+      setError(err.response ? err.response.data.message : "Ошибка logina");
     }
   };
-  // Function to use CookieData
-
-  // const [email, setEmail] = useState('');
-
-  // const [username, setUsername] = useState('')
-
-  // const [lastName, setLastName] = useState('');
-  
-  // const [phoneNumber, setPhoneNumber] = useState('')
-  
-  // const [password, setPassword] = useState('')
-
-  // useEffect(() => {
-  //   const storedEmail = cookieData("email").getValue();  
-  //   const storedUsername = cookieData("username").getValue();
-  //   const storedlastName = cookieData("lastName").getValue();
-  //   const storedPassword = cookieData("password").getValue();
-  //   const storedPhoneNumber = cookieData("PhoneNumber").getValue();
-  //   if (storedEmail && storedUsername && storedlastName && storedPassword && storedPhoneNumber) {
-  //     setEmail(storedEmail);
-  //     setUsername(storedUsername);
-  //     setLastName(storedlastName);
-  //     setPassword(storedPassword);
-  //     setPhoneNumber(storedPhoneNumber);
-  //   }
-  // }, []);
 
   return (
-    <LoginFormContainer>
-      {formState === 0 ? (
-        <Login>
-          <LoginFormTitle>Login</LoginFormTitle>
-          <form onSubmit={handleSubmit}>
-            <LoginFormInput
-              type="text"
-              placeholder="Username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <LoginFormInput
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <RegisterType>
-              <LoginFormButton type="submit">Login</LoginFormButton>
-              <PhoneNum onClick={FormChange}>Continue with ph. number</PhoneNum>
-            </RegisterType>
-          </form>
-        </Login>
-      ) : (
-        <LoginPhone>
-            <LoginFormTitle>Login</LoginFormTitle>
-          <PhoneInput
-            value={PhoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="Enter phone number"
+    <RegisterContainer>
+      <FormWrapper>
+        <Title>Войти</Title>
+        <form onSubmit={handleSubmit}>
+          <Input
             type="text"
-            />
-          <LoginPhoneButton type="submit" onClick={handleSubmit}>Login</LoginPhoneButton>
-          <Email onClick={FormChange}>Continue with email</Email>
-          <Number>+998</Number>
-        </LoginPhone>
-      )}
-    </LoginFormContainer>
+            placeholder="Телефон"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+          />
+          <Input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {error && <ErrorText>{error}</ErrorText>}
+          <Button type="submit">Войти</Button>
+        </form>
+
+        <Divvv>
+          <p>У вас нет учетной записи?</p>
+          <P onClick={() => navigate("/register")}>Регистрация</P>
+        </Divvv>
+      </FormWrapper>
+    </RegisterContainer>
   );
 };
 
-export default LoginForm;
+export default Register;
