@@ -1,14 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoIosSearch } from "react-icons/io";
-import { RxAvatar } from "react-icons/rx";
 import { useEffect, useState } from "react";
-import { LOGIN_PAGE, SETTINGS_PAGE } from "../../constants/routes";
+import { LOGIN_PAGE } from "../../constants/routes";
 import cookie from "js-cookie";
-
+import { Menu, MenuItem, Avatar as MuiAvatar } from "@mui/material";
 
 const NavContainer = styled.div`
-  position: absolute; /* Размещаем элементы поверх карты */
+  position: absolute;
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
@@ -19,105 +18,86 @@ const NavContainer = styled.div`
   z-index: 1000;
 `;
 
-// const SearchBar = styled.div`
-//   display: flex;
-//   align-items: center;
-//   background-color: #ffffff;
-//   border-radius: 2rem;
-//   padding: 0 1rem;
-//   width: 40%; /* Ширина строки поиска */
-//   height: 3rem;
-//   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-//   margin-left: 4rem;
-
-//   input {
-//     border: none;
-//     outline: none;
-//     background: none;
-//     flex: 1;
-//     margin-left: 0.5rem;
-//     font-size: 1rem;
-//   }
-// `;
-
-const Avatar = styled.div`
-  width: 3rem;
-  height: 3rem;
-  background-color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-`;
-
-const DropdownMenu = styled.div`
-  width: 20rem;
-  height: 15rem;
-  position: absolute;
-  top: 3.5rem; /* Отступ от аватарки */
-  right: 0;
-  background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  z-index: 1000;
-
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background-color: #f0f0f0;
-      }
-    }
-  }
-`;
-
-const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
+const Navbar = () => {
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState(  );
-  const [storedUser , setStoredUser] = useState(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(null);
+  const [storedUser, setStoredUser] = useState(null);
+  const [avatarContent, setAvatarContent] = useState(null);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-  const handleInputChange = (e) => {
-    setSearchValue(e.target.value);
+  // Function to handle opening/closing the dropdown menu
+  const toggleMenu = (event) => {
+    setIsMenuOpen(event.currentTarget);
   };
 
-  useEffect(() =>{
+  const handleClose = () => {
+    setIsMenuOpen(null);
+  };
+
+  // Function to check user status and set avatar content
+  const checkUserStatus = () => {
     const user = cookie.get("user");
-    setStoredUser(user);
-  }, [])
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      setStoredUser(parsedUser);
+      setAvatarContent(parsedUser.username[0].toUpperCase());
+    } else {
+      setStoredUser(null);
+      setAvatarContent(null);
+    }
+  };
 
-
-
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
 
   return (
     <NavContainer>
-      <Avatar onClick={toggleMenu}>
-        <RxAvatar size={24} />
-        {isMenuOpen && (
-          <DropdownMenu>
-            <ul>
-              {storedUser ? (
-                <li onClick={() => navigate("/account")}>Профиль</li>
-              ) : (
-                <li onClick={() => navigate(LOGIN_PAGE)}>Login</li>
-              )}
-            </ul>
-          </DropdownMenu>
+      <MuiAvatar
+        onClick={toggleMenu}
+        style={{
+          cursor: "pointer",
+          backgroundColor: storedUser ? "#3f51b5" : "#e0e0e0",
+          color: "#fff",
+          width: "3rem",
+          height: "3rem",
+          fontSize: "1.2rem",
+          fontWeight: "bold",
+        }}
+      >
+        {avatarContent || <IoIosSearch size={24} />}
+      </MuiAvatar>
+
+      <Menu
+        anchorEl={isMenuOpen}
+        open={Boolean(isMenuOpen)}
+        onClose={handleClose}
+        PaperProps={{
+          style: {
+            borderRadius: "8px",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          },
+        }}
+      >
+        {storedUser ? (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              navigate("/account");
+            }}
+          >
+            Профиль
+          </MenuItem>
+        ) : (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              navigate(LOGIN_PAGE);
+            }}
+          >
+            Login
+          </MenuItem>
         )}
-      </Avatar>
+      </Menu>
     </NavContainer>
   );
 };
