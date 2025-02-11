@@ -10,9 +10,10 @@ import "leaflet/dist/leaflet.css";
 import { IoMdLocate } from "react-icons/io";
 import L from "leaflet";
 import { useState, useEffect } from "react";
-import { getStations } from "../../../axios/axios";
+import { getStations, api } from "../../../axios/axios";
 import styled from "styled-components";
 import "leaflet-routing-machine";
+import { getUserRole } from "../../../utils/auth";
 
 const FuelButtonContainer = styled.div`
   position: fixed;
@@ -149,6 +150,9 @@ const MapComponent = () => {
   const [fuelSearchValue, setFuelSearchValue] = useState(null);
   console.log(fuelSearchValue);
   const [destination, setDestination] = useState(null);
+  const [isArrived, setIsArrived] = useState(false);
+  const [isOpen, setIsOpen] = useState(stations.status);
+  
   useEffect(() => {
     getStations(
       `${fuelSearchValue ? `?s=${fuelSearchValue?.toLowerCase()}` : ``}`
@@ -156,6 +160,21 @@ const MapComponent = () => {
       .then(setStations)
       .catch(console.error);
   }, [fuelSearchValue]);
+  const handleArrive = () => {
+    setIsArrived(!isArrived);
+  };
+
+  // const handleToggleStatus = async () => {
+  //   try {
+  //     await api.patch(`/stations/${stations._id}`, { status: !isOpen });
+  //     setIsOpen(!isOpen);
+  //   } catch (error) {
+  //     console.error("Ошибка обновления статуса", error);
+  //     alert("Не удалось изменить статус!");
+  //   }
+  // };
+  // const userRole = getUserRole();
+
 
   // useEffect(() => {
   //   const filtered = stations.filter((station) => {
@@ -199,19 +218,28 @@ const MapComponent = () => {
                     )
                   )}
               </ul>
-              Status: {station.status ? <h>Работает</h> : <h>Закрыто</h>}
+              Status: {!isOpen ? <h>Работает</h> : <h>Закрыто</h>}
               <br />
+              <button onClick={handleArrive}>
+                {isArrived ? "Уехал" : "Подъехал"}
+              </button><br />
               <button onClick={() => setDestination(station.location)}>
                 В путь
-              </button>
+              </button><br/>
+              {/* {userRole === 'admin' && (
+                <button onClick={handleToggleStatus}>
+                  {isOpen ? "Закрыть" : "Открыть"}
+                </button>
+              )} */}
             </Popup>
           </Marker>
         ))}
 
         {userPosition && (
-          <Marker 
-          icon={UserLoc}
-          position={[userPosition.lat, userPosition.lng]}>
+          <Marker
+            icon={UserLoc}
+            position={[userPosition.lat, userPosition.lng]}
+          >
             <Popup>Вы здесь!</Popup>
           </Marker>
         )}
@@ -251,5 +279,3 @@ const MapComponent = () => {
 };
 
 export default MapComponent;
-
-

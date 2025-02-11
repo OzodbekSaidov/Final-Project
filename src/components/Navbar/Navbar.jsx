@@ -1,15 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { IoIosSearch } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
 import { useEffect, useState } from "react";
 import { LOGIN_PAGE, SETTINGS_PAGE } from "../../constants/routes";
-import cookie from "js-cookie";
 import { api } from "../../axios/axios";
-
+import { FiLogOut, FiEdit3 } from "react-icons/fi";
 
 const NavContainer = styled.div`
-  position: absolute; 
+  position: absolute;
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
@@ -18,28 +16,7 @@ const NavContainer = styled.div`
   align-items: center;
   width: 90%;
   z-index: 1000;
-`
-
-// const SearchBar = styled.div
-//   display: flex;
-//   align-items: center;
-//   background-color: #ffffff;
-//   border-radius: 2rem;
-//   padding: 0 1rem;
-//   width: 40%; /* Ширина строки поиска */
-//   height: 3rem;
-//   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-//   margin-left: 4rem;
-
-//   input {
-//     border: none;
-//     outline: none;
-//     background: none;
-//     flex: 1;
-//     margin-left: 0.5rem;
-//     font-size: 1rem;
-//   }
-// ;
+`;
 
 const Avatar = styled.div`
   width: 3rem;
@@ -51,57 +28,70 @@ const Avatar = styled.div`
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  position: relative;
 `;
 
 const DropdownMenu = styled.div`
-  width: 20rem;
-  height: 15rem;
+  width: 250px;
   position: absolute;
-  top: 3.5rem; /* Отступ от аватарки */
+  top: 3.5rem;
   right: 0;
   background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
   overflow: hidden;
   z-index: 1000;
+  padding: 10px;
+  font-size: 14px;
+`;
 
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+`;
 
-    li {
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
+const UserName = styled.div`
+  font-weight: bold;
+`;
 
-      &:hover {
-        background-color: #f0f0f0;
-      }
-    }
+const UserEmail = styled.div`
+  font-size: 12px;
+  color: gray;
+`;
+
+const MenuItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #f5f5f5;
   }
 `;
 
-const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState(  );
-  const [storedUser , setStoredUser] = useState(null)
+  const [user, setUser] = useState(null);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+    if (!storedUser) navigate(LOGIN_PAGE);
+  }, []);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token")
+    navigate(LOGIN_PAGE);
   };
-  const handleInputChange = (e) => {
-    setSearchValue(e.target.value);
-  };
-
-  useEffect(() =>{
-    const user = cookie.get("user");
-    setStoredUser(user);
-  }, [])
-
-
-
 
   return (
     <NavContainer>
@@ -109,13 +99,22 @@ const Navbar = ({ isOpen, fuelSearchValue, onSearchInputChange  }) => {
         <RxAvatar size={24} />
         {isMenuOpen && (
           <DropdownMenu>
-            <ul>
-              {storedUser ? (
-                <li onClick={() => navigate("/account")}>Профиль</li>
-              ) : (
-                <li onClick={() => navigate(LOGIN_PAGE)}>Login</li>
-              )}
-            </ul>
+            {user ? (
+              <>
+                <UserInfo>
+                  <RxAvatar size={32} />
+                  <div>
+                    <UserName>{user?.name}</UserName>
+                    <UserEmail>{user?.phone}</UserEmail>
+                  </div>
+                </UserInfo>
+                <MenuItem onClick={handleLogout} style={{ color: "red" }}>
+                  <FiLogOut /> Выйти
+                </MenuItem>
+              </>
+            ) : (
+              <MenuItem onClick={() => navigate(LOGIN_PAGE)}>Войти</MenuItem>
+            )}
           </DropdownMenu>
         )}
       </Avatar>
